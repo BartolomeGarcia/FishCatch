@@ -1,19 +1,22 @@
-package com.example.fishcatch;
+package com.example.fishcatch.activities;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.fishcatch.R;
+import com.example.fishcatch.repositories.AdaptadorBaseDeDatos;
 
 public class MainActivity extends AppCompatActivity {
+    private AdaptadorBaseDeDatos adaptadorBaseDeDatos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Instanciación AdaptadorBaseDeDatos
+        adaptadorBaseDeDatos=new AdaptadorBaseDeDatos(this);
 
     }
 }
