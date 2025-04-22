@@ -43,21 +43,25 @@ public class BaseDeDatosSingleton extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE Captura(" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "idEspecie INTEGER," +
-                "peso REAL,tamanno REAL," +
+                "peso REAL," +
+                "tamanno REAL," +
                 "fecha TEXT," +
                 "hora TEXT," +
-                "comentario TEXT,foto TEXT," +
+                "comentario TEXT," +
+                "foto TEXT," +
                 "CONSTRAINT FK_ESPECIE FOREIGN KEY (idEspecie) REFERENCES Especie(id))");
 
         //Crear tabla Ubicacion
-        db.execSQL("CREATE TABLE Ubicacion(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+        db.execSQL("CREATE TABLE Ubicacion(" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "idCaptura INTEGER," +
                 "latitud REAL," +
                 "longitud REAL," +
                 "CONSTRAINT FK_CAPTURA_UBICACION FOREIGN KEY (idCaptura) REFERENCES Captura(id))");
 
         //Crear tabla Condiciones
-        db.execSQL("CREATE TABLE Condiciones(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+        db.execSQL("CREATE TABLE Condiciones(" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "idCaptura INTEGER," +
                 "temperatura REAL," +
                 "CONSTRAINT FK_CAPTURA_CONDICIONES FOREIGN KEY (idCaptura) REFERENCES Captura(id))");
