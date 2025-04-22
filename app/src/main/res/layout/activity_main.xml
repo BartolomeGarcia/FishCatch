@@ -21,7 +21,7 @@
         app:layout_constraintVertical_bias="0.094" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonAgregarCaptura"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Agregar captura"
@@ -32,7 +32,7 @@
         app:layout_constraintVertical_bias="0.385" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonVerCapturas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ver capturas"
@@ -43,7 +43,7 @@
         app:layout_constraintVertical_bias="0.53" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/buttonEstadisticasPersonales"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Estadísticas personales"

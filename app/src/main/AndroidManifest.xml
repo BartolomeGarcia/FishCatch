@@ -13,6 +13,12 @@
         android:theme="@style/Theme.FishCatch"
         tools:targetApi="31">
         <activity
+            android:name=".activities.MainActivityEstadisticasPersonales"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MainActivityVerCapturas"
+            android:exported="false" />
+        <activity
             android:name=".activities.MainActivityAgregarCaptura"
             android:exported="false" />
         <activity
