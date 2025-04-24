@@ -17,6 +17,13 @@ public class AdaptadorBaseDeDatos {
         instance.getWritableDatabase();
     }
 
+    //Método para obtener todas las Especies
+    public Cursor consultarEspecies(){
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        Cursor cursor = readableDatabase.rawQuery("SELECT nombreEspecie FROM Especie", null);
+        return cursor;
+    }
+
     //Método para insertar datos en la BD. Recibe los parámetros a insertar
     public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
         SQLiteDatabase writableDatabase = instance.getWritableDatabase();
