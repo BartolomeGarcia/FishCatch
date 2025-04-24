@@ -20,7 +20,7 @@ public class AdaptadorBaseDeDatos {
     //Método para obtener todas las Especies
     public Cursor consultarEspecies(){
         SQLiteDatabase readableDatabase = instance.getReadableDatabase();
-        Cursor cursor = readableDatabase.rawQuery("SELECT nombreEspecie FROM Especie", null);
+        Cursor cursor = readableDatabase.rawQuery("SELECT id,nombreEspecie FROM Especie", null);
         return cursor;
     }
 

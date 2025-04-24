@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,7 +17,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.fishcatch.R;
+import com.example.fishcatch.model.Especie;
 import com.example.fishcatch.repositories.AdaptadorBaseDeDatos;
+
+import java.util.ArrayList;
 
 public class MainActivityAgregarCaptura extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Button botonAnnadirImagen;
@@ -57,6 +61,17 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         //Inicializamos el AdaptadorBaseDeDatos
         adaptadorBaseDeDatos=new AdaptadorBaseDeDatos(this);
         Cursor cursor = adaptadorBaseDeDatos.consultarEspecies();
+        ArrayList<String> arrayListEspecies=new ArrayList<>();
+        //Recorremos el Cursor y llenamos el ArrayList de Especies
+        while (cursor.moveToNext()){
+            int id = cursor.getInt(0);
+            String nombreEspecie = cursor.getString(1);
+            arrayListEspecies.add(nombreEspecie);
+        }
+        //Creamos el Adaptador del Spinner
+        ArrayAdapter<String> miAdaptador = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayListEspecies);
+        spinnerEspecies.setAdapter(miAdaptador);
+        spinnerEspecies.setOnItemSelectedListener(this);
 
         //Botón Añadir Imagen
         botonAnnadirImagen.setOnClickListener(new View.OnClickListener() {
