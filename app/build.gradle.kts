@@ -38,6 +38,8 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation("com.google.android.gms:play-services-location:21.0.1")  //Para Ubicación
+    implementation("com.squareup.retrofit2:retrofit:2.9.0") //Para Temperatura
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")   //Para Temperatura
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
     testImplementation(libs.junit)

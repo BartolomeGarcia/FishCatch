@@ -26,6 +26,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.fishcatch.R;
+import com.example.fishcatch.interfaces.WeatherApiService;
+import com.example.fishcatch.model.WeatherResponse;
 import com.example.fishcatch.repositories.AdaptadorBaseDeDatos;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,6 +37,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivityAgregarCaptura extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Button botonAnnadirImagen;
@@ -139,6 +147,21 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
                 obtenerUbicacion();
             }
         });
+
+        //Botón Obtener Temperatura
+        botonObtenerTemperatura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ubicacion.getText().toString().isEmpty()) {
+                    Toast.makeText(MainActivityAgregarCaptura.this, "Se necesita una ubicación, para obtener la temperatura", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String[] partes = ubicacion.getText().toString().split(",");
+                double lat = Double.parseDouble(partes[0]);
+                double lon = Double.parseDouble(partes[1]);
+                obtenerTemperatura(lat, lon);
+            }
+        });
     }
 
     private void abrirGaleria() {
@@ -197,5 +220,35 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
                         Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    //TEMPERATURA
+    private void obtenerTemperatura(double lat, double lon) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.openweathermap.org/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        WeatherApiService apiService = retrofit.create(WeatherApiService.class);
+
+        String apiKey = "944b0efe31fd40ae1a21eff562550ecf"; //API Key de OpenWeather
+        Call<WeatherResponse> call = apiService.getCurrentWeather(lat, lon, apiKey, "metric");
+
+        call.enqueue(new Callback<WeatherResponse>() {
+            @Override
+            public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    double temp = response.body().main.temp;
+                    temperatura.setText(temp + " °C");
+                } else {
+                    temperatura.setText("No se pudo obtener");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WeatherResponse> call, Throwable t) {
+                temperatura.setText("Error: " + t.getMessage());
+            }
+        });
     }
 }
