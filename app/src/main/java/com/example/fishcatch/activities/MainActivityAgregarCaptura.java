@@ -130,7 +130,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
             datePickerDialog.show();
         });
 
-        //Obtener Ubicación
+        //Botón Obtener Ubicación
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         requestLocationPermission();
         botonObtenerUbicacion.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +169,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
 
     }
 
+    //UBICACIÓN
     //Permisos para la Ubicación
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
