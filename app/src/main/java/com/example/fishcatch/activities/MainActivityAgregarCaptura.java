@@ -1,8 +1,10 @@
 package com.example.fishcatch.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,12 +18,18 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.fishcatch.R;
 import com.example.fishcatch.repositories.AdaptadorBaseDeDatos;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +51,8 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
     private Button botonObtenerUbicacion;
     private Button botonObtenerTemperatura;
     private Calendar calendar;  //Para la fecha y hora
+    private static final int REQUEST_LOCATION_PERMISSION = 1;   //Para permisos de ubicación
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +116,6 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
                                     // Formatear y mostrar
                                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                                     fechaHora.setText(sdf.format(calendar.getTime()));
-
-                                    // Guardar la fecha/hora en una variable
-                                    // Por ejemplo: Date fechaSeleccionada = calendar.getTime();
                                 },
                                 calendar.get(Calendar.HOUR_OF_DAY),
                                 calendar.get(Calendar.MINUTE),
@@ -121,6 +128,16 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
                     calendar.get(Calendar.DAY_OF_MONTH)
             );
             datePickerDialog.show();
+        });
+
+        //Obtener Ubicación
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        requestLocationPermission();
+        botonObtenerUbicacion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                obtenerUbicacion();
+            }
         });
     }
 
@@ -150,5 +167,34 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    //Permisos para la Ubicación
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+    }
+
+    private void obtenerUbicacion() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Permiso no concedido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        double lat = location.getLatitude();
+                        double lon = location.getLongitude();
+                        ubicacion.setText(lat + "," + lon);
+                        Toast.makeText(this, "Ubicación: " + lat + ", " + lon, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }
