@@ -37,7 +37,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
+    implementation("com.google.android.gms:play-services-location:21.0.1")  //Para Ubicación
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.ext.junit)
+    testImplementation(libs.junit)
 }
