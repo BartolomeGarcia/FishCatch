@@ -80,7 +80,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         comentariosAdicionales=findViewById(R.id.editTextTextComentariosAdicionales);
         botonObtenerUbicacion=findViewById(R.id.buttonObtenerUbicacion);
         botonObtenerTemperatura=findViewById(R.id.buttonObtenerTemperatura);
-        botonGuardarCaptura=findViewById(R.id.buttonAgregarCaptura);
+        botonGuardarCaptura=findViewById(R.id.buttonGuardarCaptura);
 
         //Inicializamos el AdaptadorBaseDeDatos
         adaptadorBaseDeDatos=new AdaptadorBaseDeDatos(this);
@@ -169,7 +169,40 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         botonGuardarCaptura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO
+                // Obtener datos del formulario
+                String especieSeleccionada = spinnerEspecies.getSelectedItem().toString();
+                int idEspecie = adaptadorBaseDeDatos.obtenerIdEspeciePorNombre(especieSeleccionada);
+                double pesoCaptura = Double.parseDouble(peso.getText().toString());
+                double tamannoCaptura = Double.parseDouble(tamanno.getText().toString());
+                String[] fechaHoraPartes = fechaHora.getText().toString().split(" ");
+                String fechaStr = fechaHoraPartes[0];
+                String horaStr = fechaHoraPartes[1];
+                String comentario = comentariosAdicionales.getText().toString();
+                String fotoUri = imagenCaptura.getTag() != null ? imagenCaptura.getTag().toString() : "";
+
+                // Insertar en tabla Captura
+                long idCaptura = adaptadorBaseDeDatos.insertarCaptura(idEspecie, pesoCaptura, tamannoCaptura, fechaStr, horaStr, comentario, fotoUri);
+
+                if (idCaptura != -1) {
+                    // Insertar en tabla Ubicacion si hay ubicación
+                    if (!ubicacion.getText().toString().isEmpty()) {
+                        String[] coordenadas = ubicacion.getText().toString().split(",");
+                        double lat = Double.parseDouble(coordenadas[0]);
+                        double lon = Double.parseDouble(coordenadas[1]);
+                        adaptadorBaseDeDatos.insertarUbicacion(idCaptura, lat, lon);
+                    }
+
+                    // Insertar en tabla Condiciones si hay temperatura
+                    if (!temperatura.getText().toString().isEmpty() && temperatura.getText().toString().contains("°C")) {
+                        double temp = Double.parseDouble(temperatura.getText().toString().replace(" °C", ""));
+                        adaptadorBaseDeDatos.insertarCondiciones(idCaptura, temp);
+                    }
+
+                    Toast.makeText(MainActivityAgregarCaptura.this, "Captura guardada con éxito", Toast.LENGTH_LONG).show();
+                    finish();  // Cierra la actividad
+                } else {
+                    Toast.makeText(MainActivityAgregarCaptura.this, "Error al guardar la captura", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -188,6 +221,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
             imagenCaptura.setImageURI(imageUri);
+            imagenCaptura.setTag(imageUri.toString());  // ← ESTA ES LA LÍNEA IMPORTANTE
         }
     }
 
