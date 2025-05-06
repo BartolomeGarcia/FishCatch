@@ -24,7 +24,7 @@ public class AdaptadorBaseDeDatos {
         return cursor;
     }
 
-    //Método para insertar datos en la BD. Recibe los parámetros a insertar
+    //Método para insertar la Captura en la BD. Recibe los parámetros a insertar
     public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
         SQLiteDatabase writableDatabase = instance.getWritableDatabase();
         String queryDarAltaPlantacion = "INSERT INTO PLANTACION (NOMBREPLANTA,NUMPLANTAS,GRUPOCLASE,IDTIPO) VALUES (?,?,?,?)";

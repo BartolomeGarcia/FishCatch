@@ -58,6 +58,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
     private EditText comentariosAdicionales;
     private Button botonObtenerUbicacion;
     private Button botonObtenerTemperatura;
+    private Button botonGuardarCaptura;
     private Calendar calendar;  //Para la fecha y hora
     private static final int REQUEST_LOCATION_PERMISSION = 1;   //Para permisos de ubicación
     private FusedLocationProviderClient fusedLocationClient;
@@ -79,6 +80,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         comentariosAdicionales=findViewById(R.id.editTextTextComentariosAdicionales);
         botonObtenerUbicacion=findViewById(R.id.buttonObtenerUbicacion);
         botonObtenerTemperatura=findViewById(R.id.buttonObtenerTemperatura);
+        botonGuardarCaptura=findViewById(R.id.buttonAgregarCaptura);
 
         //Inicializamos el AdaptadorBaseDeDatos
         adaptadorBaseDeDatos=new AdaptadorBaseDeDatos(this);
@@ -160,6 +162,14 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
                 double lat = Double.parseDouble(partes[0]);
                 double lon = Double.parseDouble(partes[1]);
                 obtenerTemperatura(lat, lon);
+            }
+        });
+
+        //Botón Guardar Captura
+        botonGuardarCaptura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO
             }
         });
     }
