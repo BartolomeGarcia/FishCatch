@@ -1,5 +1,6 @@
 package com.example.fishcatch.repositories;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,6 +26,49 @@ public class AdaptadorBaseDeDatos {
     }
 
     //Método para insertar la Captura en la BD. Recibe los parámetros a insertar
+    public long insertarCaptura(int idEspecie, double peso, double tamanno, String fecha, String hora, String comentario, String fotoUri) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("idEspecie", idEspecie);
+        values.put("peso", peso);
+        values.put("tamanno", tamanno);
+        values.put("fecha", fecha);
+        values.put("hora", hora);
+        values.put("comentario", comentario);
+        values.put("foto", fotoUri);
+        return writableDatabase.insert("Captura", null, values);
+    }
+
+    //Método para insertar la Ubicación
+    public void insertarUbicacion(long idCaptura, double latitud, double longitud) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("idCaptura", idCaptura);
+        values.put("latitud", latitud);
+        values.put("longitud", longitud);
+        writableDatabase.insert("Ubicacion", null, values);
+    }
+
+    //Método para insertar las Condiciones
+    public void insertarCondiciones(long idCaptura, double temperatura) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("idCaptura", idCaptura);
+        values.put("temperatura", temperatura);
+        writableDatabase.insert("Condiciones", null, values);
+    }
+
+    //Método para obtener el Id de la Especie por el nombre de la Especie
+    public int obtenerIdEspeciePorNombre(String nombreEspecie) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        Cursor cursor = readableDatabase.rawQuery("SELECT id FROM Especie WHERE nombreEspecie = ?", new String[]{nombreEspecie});
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        } else {
+            return -1;  // Error
+        }
+    }
+
     public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
         SQLiteDatabase writableDatabase = instance.getWritableDatabase();
         String queryDarAltaPlantacion = "INSERT INTO PLANTACION (NOMBREPLANTA,NUMPLANTAS,GRUPOCLASE,IDTIPO) VALUES (?,?,?,?)";
