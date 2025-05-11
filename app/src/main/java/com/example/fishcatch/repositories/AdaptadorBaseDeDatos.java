@@ -122,6 +122,14 @@ public class AdaptadorBaseDeDatos {
         return capturas;
     }
 
+    //Método para eliminar una Captura utilizando el idCaptura
+    public void eliminarCaptura(int idCaptura) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        String queryEliminarCaptura = "DELETE FROM Captura WHERE id = ?";
+        writableDatabase.execSQL(queryEliminarCaptura, new Object[]{idCaptura});
+        Toast.makeText(contexto, "La captura ha sido eliminada correctamente", Toast.LENGTH_SHORT).show();
+    }
+
     public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
         SQLiteDatabase writableDatabase = instance.getWritableDatabase();
         String queryDarAltaPlantacion = "INSERT INTO PLANTACION (NOMBREPLANTA,NUMPLANTAS,GRUPOCLASE,IDTIPO) VALUES (?,?,?,?)";
