@@ -102,16 +102,33 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         botonObtenerTemperatura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String fechaHoraValor = fechaHora.getText().toString();
+
+                if (fechaHoraValor.isEmpty()) {
+                    Toast.makeText(MainActivityAgregarCaptura.this, "Debe seleccionar la fecha y hora primero", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String fechaCaptura = fechaHoraValor.split(" ")[0]; // Obtener solo la fecha
+                String fechaActual = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
+
+                if (!fechaCaptura.equals(fechaActual)) {
+                    Toast.makeText(MainActivityAgregarCaptura.this, "Solo se puede obtener la temperatura para la fecha actual", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if (ubicacion.getText().toString().isEmpty()) {
                     Toast.makeText(MainActivityAgregarCaptura.this, "Se necesita una ubicación para obtener la temperatura", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 String[] partes = ubicacion.getText().toString().split(",");
                 double lat = Double.parseDouble(partes[0]);
                 double lon = Double.parseDouble(partes[1]);
                 obtenerTemperatura(lat, lon);
             }
         });
+
 
         // Guardar captura
         botonGuardarCaptura.setOnClickListener(new View.OnClickListener() {
@@ -231,31 +248,52 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
     }
 
     private void guardarCaptura() {
+        // Verificar Especie
         if (idEspecieSeleccionada == -1) {
-            Toast.makeText(this, "Selecciona una especie", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "La especie es obligatoria", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double pesoVal = Double.parseDouble(peso.getText().toString());
-        double tamannoValor = Double.parseDouble(tamanno.getText().toString());
+        // Verificar el Peso
+        String pesoValor = peso.getText().toString();
+        if (pesoValor.isEmpty()) {
+            Toast.makeText(this, "El peso es obligatorio", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Verificar fecha y hora
         String fechaHoraValor = fechaHora.getText().toString();
-        String[] partesFechaHora = fechaHoraValor.split(" ");
-        String fechaValor = "";
+        if (fechaHoraValor.isEmpty()) {
+            Toast.makeText(this, "La fecha y hora son obligatorias", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double pesoVal = Double.parseDouble(pesoValor);
+
+        double tamannoValor;
+        if (tamanno.getText().toString().isEmpty()) {
+            tamannoValor = 0;
+        } else {
+            tamannoValor = Double.parseDouble(tamanno.getText().toString());
+        }
+
+        String fechaHoraValorSplit = fechaHoraValor.split(" ")[0];
         String horaValor = "";
-        if (partesFechaHora.length > 0) {
-            fechaValor = partesFechaHora[0];
+        if (fechaHoraValor.split(" ").length > 1) {
+            horaValor = fechaHoraValor.split(" ")[1];
         }
-        if (partesFechaHora.length > 1) {
-            horaValor = partesFechaHora[1];
-        }
-        
+
         String comentario = comentariosAdicionales.getText().toString();
-        String fotoUri = imagenCaptura.getTag() != null ? imagenCaptura.getTag().toString() : "";
 
-        // Insertar captura
-        long idCaptura = adaptadorBaseDeDatos.insertarCaptura(idEspecieSeleccionada, pesoVal, tamannoValor, fechaValor, horaValor, comentario, fotoUri);
+        String fotoUri = "";
+        if (imagenCaptura.getTag() != null) {
+            fotoUri = imagenCaptura.getTag().toString();
+        }
 
-        // Insertar ubicación
+        long idCaptura = adaptadorBaseDeDatos.insertarCaptura(idEspecieSeleccionada, pesoVal, tamannoValor, fechaHoraValorSplit, horaValor, comentario, fotoUri
+        );
+
+        // Guardar ubicación si está disponible
         if (!ubicacion.getText().toString().isEmpty()) {
             String[] coords = ubicacion.getText().toString().split(",");
             double latitud = Double.parseDouble(coords[0]);
@@ -263,7 +301,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
             adaptadorBaseDeDatos.insertarUbicacion((int) idCaptura, latitud, longitud);
         }
 
-        // Insertar temperatura
+        // Guardar temperatura si está disponible
         if (!temperatura.getText().toString().isEmpty() && temperatura.getText().toString().contains("°C")) {
             double temp = Double.parseDouble(temperatura.getText().toString().replace(" °C", ""));
             adaptadorBaseDeDatos.insertarCondiciones((int) idCaptura, temp);
@@ -272,6 +310,7 @@ public class MainActivityAgregarCaptura extends AppCompatActivity implements Ada
         Toast.makeText(this, "Captura guardada", Toast.LENGTH_LONG).show();
         finish();
     }
+
 
     //UBICACIÓN
     private void requestLocationPermission() {
