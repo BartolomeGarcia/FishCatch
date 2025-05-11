@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
+import com.example.fishcatch.model.Captura;
+
+import java.util.ArrayList;
+
 public class AdaptadorBaseDeDatos {
     private Context contexto;
     private BaseDeDatosSingleton instance;
@@ -18,6 +22,7 @@ public class AdaptadorBaseDeDatos {
         instance.getWritableDatabase();
     }
 
+    //AGREGAR CAPTURA
     //Método para obtener todas las Especies
     public Cursor consultarEspecies(){
         SQLiteDatabase readableDatabase = instance.getReadableDatabase();
@@ -67,6 +72,62 @@ public class AdaptadorBaseDeDatos {
         } else {
             return -1;  // Error
         }
+    }
+
+    //VER CAPTURA
+    //Método para obtener las distintas fechas entre todas las capturas
+    public ArrayList<String> obtenerFechasCapturasUnicas() {
+        ArrayList<String> fechas = new ArrayList<>();
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        Cursor cursor = readableDatabase.rawQuery("SELECT DISTINCT fecha FROM Captura ORDER BY fecha DESC", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                fechas.add(cursor.getString(0)); // fecha
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return fechas;
+    }
+
+    //Método para obtener las capturas de una fecha determinada
+    public ArrayList<Captura> obtenerCapturasPorFecha(String fecha) {
+        ArrayList<Captura> capturas = new ArrayList<>();
+
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        String consulta = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto " +
+                "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                "WHERE c.fecha = ?";
+        Cursor cursor = readableDatabase.rawQuery(consulta, new String[]{fecha});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Captura captura = new Captura();
+                captura.setId(cursor.getInt(0));
+                captura.setIdEspecie(cursor.getInt(1));
+                captura.setNombreEspecie(cursor.getString(2));
+                captura.setPeso(cursor.getDouble(3));
+                captura.setTamanno(cursor.getDouble(4));
+                captura.setFecha(cursor.getString(5));
+                captura.setHora(cursor.getString(6));
+                captura.setComentario(cursor.getString(7));
+                captura.setFotoUri(cursor.getString(8));
+
+                capturas.add(captura);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return capturas;
+    }
+
+    //Método para eliminar una Captura utilizando el idCaptura
+    public void eliminarCaptura(int idCaptura) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        String queryEliminarCaptura = "DELETE FROM Captura WHERE id = ?";
+        writableDatabase.execSQL(queryEliminarCaptura, new Object[]{idCaptura});
+        Toast.makeText(contexto, "La captura ha sido eliminada correctamente", Toast.LENGTH_SHORT).show();
     }
 
     public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
