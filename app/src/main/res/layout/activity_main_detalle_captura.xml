@@ -1,10 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.MainActivityDetalleCaptura">
+    android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Imagen de la captura -->
+        <ImageView
+            android:id="@+id/imagenDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Foto de la captura" />
+
+        <Button
+            android:id="@+id/btnAgregarImagen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Añadir Imagen"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Especie -->
+        <TextView
+            android:id="@+id/especieDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Especie"
+            android:textStyle="bold" />
+
+        <!-- Peso -->
+        <EditText
+            android:id="@+id/pesoDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Peso"
+            android:inputType="numberDecimal" />
+
+        <!-- Tamaño -->
+        <EditText
+            android:id="@+id/tamannoDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Tamaño"
+            android:inputType="numberDecimal" />
+
+        <!-- Fecha -->
+        <EditText
+            android:id="@+id/fechaDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fecha"
+            android:inputType="date" />
+
+        <!-- Hora -->
+        <EditText
+            android:id="@+id/horaDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Hora"
+            android:inputType="time" />
+
+        <!-- Comentarios -->
+        <EditText
+            android:id="@+id/comentariosDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Comentarios" />
+
+        <!-- Temperatura si la hay -->
+        <TextView
+            android:id="@+id/temperaturaDetalle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Temperatura: "
+            android:layout_marginTop="8dp" />
+
+        <!-- Contenedor del mapa -->
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Botón para guardar -->
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Guardar Cambios"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</ScrollView>

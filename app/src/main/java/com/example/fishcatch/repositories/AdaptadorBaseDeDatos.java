@@ -130,52 +130,71 @@ public class AdaptadorBaseDeDatos {
         Toast.makeText(contexto, "La captura ha sido eliminada correctamente", Toast.LENGTH_SHORT).show();
     }
 
-    public void insertarPlantacion(String nombrePlanta, Integer numeroPlantas, String grupoDeClase, Integer tipoDePlanta) {    //Devuelve el identificador que recibe el nuevo registro al ser insertado (ya sea conclave de tipo autonumérico o no)
-        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
-        String queryDarAltaPlantacion = "INSERT INTO PLANTACION (NOMBREPLANTA,NUMPLANTAS,GRUPOCLASE,IDTIPO) VALUES (?,?,?,?)";
-        writableDatabase.execSQL(queryDarAltaPlantacion, new Object[]{nombrePlanta, numeroPlantas, grupoDeClase, tipoDePlanta});
-        Toast.makeText(contexto, "La plantación " + nombrePlanta + " se ha insertado correctamente", Toast.LENGTH_SHORT).show();
-    }
+    //Método para obtener la Captura por id
+    public Captura obtenerCapturaPorId(int idCaptura) {
+        Captura captura = null;
 
-    public Cursor consultarPlantacion(String idPlantacion) {
-        Cursor cursor = null;
-        try {
-            // Abrir la base de datos en modo lectura
-            SQLiteDatabase readableDatabase = instance.getReadableDatabase();
-            String query = "SELECT * FROM plantacion WHERE idPlantacion=?";
-            cursor = readableDatabase.rawQuery(query, new String[]{idPlantacion});
-
-            if (cursor != null && cursor.moveToFirst()) {
-                return cursor; // Devuelve el cursor si tiene datos
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // No cierres el cursor aquí si lo estás devolviendo
-        return null;
-    }
-
-    public void modificarDatosPlantacion(int idPlantacionAModificar, String nombrePlantacion, Integer numeroPlantas, String grupoClase, Integer idTipoPlanta) {
-        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
-        try {
-            String query = "UPDATE plantacion SET nombrePlanta = ?, numPlantas = ?, grupoClase=?,idTipo=? WHERE idPlantacion = ?";
-            writableDatabase.execSQL(query, new Object[]{nombrePlantacion, numeroPlantas, grupoClase, idTipoPlanta, idPlantacionAModificar});
-            Toast.makeText(contexto, "Los datos de la plantación se han modificado correctamente", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(contexto, "Error al modificar los datos", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public int mostrarPlantacionesPorTipo(String nombreTipo) {
         SQLiteDatabase readableDatabase = instance.getReadableDatabase();
-        Cursor cursor = readableDatabase.rawQuery(
-                "SELECT SUM(numPlantas) FROM plantacion WHERE idTipo=(SELECT idTipo FROM tipoPlanta WHERE nombreTipo LIKE ?)",
-                new String[]{nombreTipo}
-        );
-        if(cursor!=null && cursor.moveToFirst()){
-            return cursor.getInt(0);
-        }else{
-            return 0;
+
+        //Consulta para obtener la captura y su especie asociada
+        String consulta = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto " +
+                "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                "WHERE c.id = ?";
+        Cursor cursor = readableDatabase.rawQuery(consulta, new String[]{String.valueOf(idCaptura)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Extraemos los datos de la captura
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            int idEspecie = cursor.getInt(cursor.getColumnIndexOrThrow("idEspecie"));
+            String nombreEspecie = cursor.getString(cursor.getColumnIndexOrThrow("nombreEspecie"));
+            double peso = cursor.getDouble(cursor.getColumnIndexOrThrow("peso"));
+            double tamanno = cursor.getDouble(cursor.getColumnIndexOrThrow("tamanno"));
+            String fecha = cursor.getString(cursor.getColumnIndexOrThrow("fecha"));
+            String hora = cursor.getString(cursor.getColumnIndexOrThrow("hora"));
+            String comentario = cursor.getString(cursor.getColumnIndexOrThrow("comentario"));
+            String fotoUri = cursor.getString(cursor.getColumnIndexOrThrow("foto"));
+
+            // Creamos la captura con los datos obtenidos
+            captura = new Captura();
+            captura.setId(id);
+            captura.setIdEspecie(idEspecie);
+            captura.setNombreEspecie(nombreEspecie);
+            captura.setPeso(peso);
+            captura.setTamanno(tamanno);
+            captura.setFecha(fecha);
+            captura.setHora(hora);
+            captura.setComentario(comentario);
+            captura.setFotoUri(fotoUri);
+
+            cursor.close();
         }
+
+        //Ahora obtenemos la ubicación relacionada con esta captura (si existe)
+        String ubicacionQuery = "SELECT latitud, longitud FROM Ubicacion WHERE idCaptura = ?";
+        Cursor ubicacionCursor = readableDatabase.rawQuery(ubicacionQuery, new String[]{String.valueOf(idCaptura)});
+
+        if (ubicacionCursor != null && ubicacionCursor.moveToFirst()) {
+            double latitud = ubicacionCursor.getDouble(ubicacionCursor.getColumnIndexOrThrow("latitud"));
+            double longitud = ubicacionCursor.getDouble(ubicacionCursor.getColumnIndexOrThrow("longitud"));
+
+            captura.setLatitud(latitud);
+            captura.setLongitud(longitud);
+
+            ubicacionCursor.close();
+        }
+
+        //Ahora obtenemos las condiciones relacionadas con esta captura (si existen)
+        String condicionesQuery = "SELECT temperatura FROM Condiciones WHERE idCaptura = ?";
+        Cursor condicionesCursor = readableDatabase.rawQuery(condicionesQuery, new String[]{String.valueOf(idCaptura)});
+
+        if (condicionesCursor != null && condicionesCursor.moveToFirst()) {
+            double temperatura = condicionesCursor.getDouble(condicionesCursor.getColumnIndexOrThrow("temperatura"));
+
+            captura.setTemperatura(temperatura);
+
+            condicionesCursor.close();
+        }
+
+        return captura;
     }
 }
