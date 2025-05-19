@@ -1,24 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MainActivityEstadisticasPersonales">
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="363dp"
-        android:layout_height="45dp"
-        android:autoSizeTextType="uniform"
-        android:text="ESTADÍSTICAS PERSONALES"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.081" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Spinner para seleccionar año -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecciona año:"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp" />
+
+        <Spinner
+            android:id="@+id/spinnerAnios"
+            android:layout_width="193dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Total capturas -->
+        <TextView
+            android:id="@+id/textViewTotalCapturas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total de capturas: "
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Especie más capturada -->
+        <TextView
+            android:id="@+id/textViewEspecieMasCapturada"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Especie más capturada: "
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Capturas por especie -->
+        <TextView
+            android:id="@+id/textViewCapturasPorEspecie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Capturas por especie:"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Día más exitoso -->
+        <TextView
+            android:id="@+id/textViewDiaMasExitoso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Día más exitoso: "
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Captura con mayor peso con ubicación -->
+        <TextView
+            android:id="@+id/textViewMayorPesoConUbicacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Captura con mayor peso (con ubicación):"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Botón para abrir ubicación en Google Maps -->
+        <Button
+            android:id="@+id/buttonAbrirMapaUbicacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Abrir ubicación en Google Maps"
+            android:enabled="false"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Captura con mayor peso sin ubicación -->
+        <TextView
+            android:id="@+id/textViewMayorPesoSinUbicacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Captura con mayor peso (sin ubicación):"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Añade justo antes del último TextView (captura sin ubicación) -->
+
+        <Button
+            android:id="@+id/buttonGenerarPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generar PDF"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
+</ScrollView>

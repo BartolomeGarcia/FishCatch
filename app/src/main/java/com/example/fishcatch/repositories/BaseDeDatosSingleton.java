@@ -57,14 +57,14 @@ public class BaseDeDatosSingleton extends SQLiteOpenHelper {
                 "idCaptura INTEGER," +
                 "latitud REAL," +
                 "longitud REAL," +
-                "CONSTRAINT FK_CAPTURA_UBICACION FOREIGN KEY (idCaptura) REFERENCES Captura(id))");
+                "CONSTRAINT FK_CAPTURA_UBICACION FOREIGN KEY (idCaptura) REFERENCES Captura(id) ON DELETE CASCADE)");
 
         //Crear tabla Condiciones
         db.execSQL("CREATE TABLE Condiciones(" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "idCaptura INTEGER," +
                 "temperatura REAL," +
-                "CONSTRAINT FK_CAPTURA_CONDICIONES FOREIGN KEY (idCaptura) REFERENCES Captura(id))");
+                "CONSTRAINT FK_CAPTURA_CONDICIONES FOREIGN KEY (idCaptura) REFERENCES Captura(id) ON DELETE CASCADE)");
 
         //Inserción de datos Especies
         db.execSQL("INSERT INTO Especie (nombreEspecie) VALUES ('Trucha')");
@@ -92,5 +92,12 @@ public class BaseDeDatosSingleton extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVer, int
             newVer) {
+    }
+
+    //Para habilitar las claves foráneas en SQLite
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        super.onConfigure(db);
+        db.execSQL("PRAGMA foreign_keys=ON;");
     }
 }

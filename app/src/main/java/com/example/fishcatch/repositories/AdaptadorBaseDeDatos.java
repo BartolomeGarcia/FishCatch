@@ -9,6 +9,10 @@ import android.widget.Toast;
 import com.example.fishcatch.model.Captura;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AdaptadorBaseDeDatos {
     private Context contexto;
@@ -209,5 +213,208 @@ public class AdaptadorBaseDeDatos {
 
         // Actualizamos la captura por su id
         writableDatabase.update("Captura", values, "id = ?", new String[]{String.valueOf(idCaptura)});
+    }
+
+    //ESTADÍSTICAS PERSONALES
+    //Método auxiliar para construir objeto Captura desde cursor
+    private Captura construirCapturaDesdeCursorConNombre(Cursor cursor, boolean tieneUbicacion) {
+        Captura captura = new Captura();
+        captura.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+        captura.setIdEspecie(cursor.getInt(cursor.getColumnIndexOrThrow("idEspecie")));
+        captura.setNombreEspecie(cursor.getString(cursor.getColumnIndexOrThrow("nombreEspecie")));
+        captura.setPeso(cursor.getDouble(cursor.getColumnIndexOrThrow("peso")));
+        captura.setTamanno(cursor.getDouble(cursor.getColumnIndexOrThrow("tamanno")));
+        captura.setFecha(cursor.getString(cursor.getColumnIndexOrThrow("fecha")));
+        captura.setHora(cursor.getString(cursor.getColumnIndexOrThrow("hora")));
+        captura.setComentario(cursor.getString(cursor.getColumnIndexOrThrow("comentario")));
+        captura.setFotoUri(cursor.getString(cursor.getColumnIndexOrThrow("foto")));
+
+        if (tieneUbicacion) {
+            captura.setLatitud(cursor.getDouble(cursor.getColumnIndexOrThrow("latitud")));
+            captura.setLongitud(cursor.getDouble(cursor.getColumnIndexOrThrow("longitud")));
+        }
+        return captura;
+    }
+
+    //Obtener número total de capturas (con filtro opcional por año)
+    public int obtenerNumeroTotalCapturas(String anio) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        Cursor cursor;
+        if (anio == null) {
+            cursor = readableDatabase.rawQuery("SELECT COUNT(*) FROM Captura", null);
+        } else {
+            cursor = readableDatabase.rawQuery(
+                    "SELECT COUNT(*) FROM Captura WHERE substr(fecha, 7, 4) = ?",
+                    new String[]{anio});
+        }
+        int total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    //Obtener especie más capturada (con filtro opcional por año)
+    public String obtenerEspecieMasCapturada(String anio) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        String consulta;
+        Cursor cursor;
+
+        if (anio == null) {
+            consulta = "SELECT e.nombreEspecie, COUNT(c.idEspecie) as total " +
+                    "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "GROUP BY e.nombreEspecie ORDER BY total DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(consulta, null);
+        } else {
+            consulta = "SELECT e.nombreEspecie, COUNT(c.idEspecie) as total " +
+                    "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "WHERE substr(c.fecha, 7, 4) = ? " +
+                    "GROUP BY e.nombreEspecie ORDER BY total DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(consulta, new String[]{anio});
+        }
+
+        String especieMasCapturada = null;
+        if (cursor.moveToFirst()) {
+            especieMasCapturada = cursor.getString(cursor.getColumnIndexOrThrow("nombreEspecie"));
+        }
+        cursor.close();
+        return especieMasCapturada;
+    }
+
+    //Obtener capturas por especie (lista con especie: cantidad) con filtro por año
+    public List<String> obtenerCapturasPorEspecie(String anio) {
+        List<String> lista = new ArrayList<>();
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+
+        String query;
+        Cursor cursor;
+
+        if (anio == null) {
+            query = "SELECT e.nombreEspecie, COUNT(*) as total " +
+                    "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "GROUP BY c.idEspecie ORDER BY total DESC";
+            cursor = readableDatabase.rawQuery(query, null);
+        } else {
+            query = "SELECT e.nombreEspecie, COUNT(*) as total " +
+                    "FROM Captura c INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "WHERE substr(c.fecha, 7, 4) = ? " +
+                    "GROUP BY c.idEspecie ORDER BY total DESC";
+            cursor = readableDatabase.rawQuery(query, new String[]{anio});
+        }
+
+        while (cursor.moveToNext()) {
+            String especie = cursor.getString(0);
+            int total = cursor.getInt(1);
+            lista.add(especie + ": " + total);
+        }
+        cursor.close();
+        return lista;
+    }
+
+    //Captura de mayor peso con ubicación (filtrada por año)
+    public Captura obtenerCapturaMayorPesoConUbicacion(String anio) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+
+        String sql;
+        Cursor cursor;
+
+        if (anio == null) {
+            sql = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto, u.latitud, u.longitud " +
+                    "FROM Captura c " +
+                    "INNER JOIN Ubicacion u ON c.id = u.idCaptura " +
+                    "INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "ORDER BY c.peso DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(sql, null);
+        } else {
+            sql = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto, u.latitud, u.longitud " +
+                    "FROM Captura c " +
+                    "INNER JOIN Ubicacion u ON c.id = u.idCaptura " +
+                    "INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "WHERE substr(c.fecha, 7, 4) = ? " +
+                    "ORDER BY c.peso DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(sql, new String[]{anio});
+        }
+
+        Captura captura = cursor.moveToFirst() ? construirCapturaDesdeCursorConNombre(cursor, true) : null;
+        cursor.close();
+        return captura;
+    }
+
+    //Captura de mayor peso sin ubicación (filtrada por año)
+    public Captura obtenerCapturaMayorPesoSinUbicacion(String anio) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+
+        String sql;
+        Cursor cursor;
+
+        if (anio == null) {
+            sql = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto " +
+                    "FROM Captura c " +
+                    "INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "WHERE c.id NOT IN (SELECT idCaptura FROM Ubicacion) " +
+                    "ORDER BY c.peso DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(sql, null);
+        } else {
+            sql = "SELECT c.id, c.idEspecie, e.nombreEspecie, c.peso, c.tamanno, c.fecha, c.hora, c.comentario, c.foto " +
+                    "FROM Captura c " +
+                    "INNER JOIN Especie e ON c.idEspecie = e.id " +
+                    "WHERE c.id NOT IN (SELECT idCaptura FROM Ubicacion) AND substr(c.fecha, 7, 4) = ? " +
+                    "ORDER BY c.peso DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(sql, new String[]{anio});
+        }
+
+        Captura captura = cursor.moveToFirst() ? construirCapturaDesdeCursorConNombre(cursor, false) : null;
+        cursor.close();
+        return captura;
+    }
+
+    //Obtener el día con mayor número de capturas (filtrado por año)
+    public String obtenerDiaMasExitoso(String anio) {
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        String query;
+        Cursor cursor;
+
+        if (anio == null) {
+            query = "SELECT fecha, COUNT(*) as total FROM Captura GROUP BY fecha ORDER BY total DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(query, null);
+        } else {
+            query = "SELECT fecha, COUNT(*) as total FROM Captura WHERE substr(fecha, 7, 4) = ? GROUP BY fecha ORDER BY total DESC LIMIT 1";
+            cursor = readableDatabase.rawQuery(query, new String[]{anio});
+        }
+
+        String fecha = null;
+        if (cursor.moveToFirst()) {
+            fecha = cursor.getString(0);
+        }
+        cursor.close();
+        return fecha;
+    }
+
+    //Obtener años disponibles
+    public List<String> obtenerAnnosDisponibles() {
+        List<String> listaAnios = new ArrayList<>();
+        SQLiteDatabase readableDatabase = instance.getReadableDatabase();
+        Cursor cursor = readableDatabase.rawQuery("SELECT fecha FROM captura", null);
+
+        Set<String> setAnios = new HashSet<>();
+        if (cursor.moveToFirst()) {
+            do {
+                String fecha = cursor.getString(0); // "19/05/2025"
+                if (fecha != null && fecha.length() >= 10) {
+                    String[] partes = fecha.split("/");
+                    if (partes.length == 3) {
+                        setAnios.add(partes[2]);
+                    }
+                }
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        readableDatabase.close();
+
+        List<String> lista = new ArrayList<>(setAnios);
+        Collections.sort(lista, Collections.reverseOrder()); // Opcional
+        return lista;
     }
 }
