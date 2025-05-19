@@ -145,4 +145,13 @@ public class Captura {
                 ", temperatura=" + temperatura +
                 '}';
     }
+
+    //Métodos para usarlos en MainActivityDetalleCaptura
+    public boolean tieneUbicacion() {
+        return latitud != null && longitud != null && latitud != 0 && longitud != 0;
+    }
+
+    public boolean tieneImagen() {
+        return fotoUri != null && !fotoUri.isEmpty();
+    }
 }
