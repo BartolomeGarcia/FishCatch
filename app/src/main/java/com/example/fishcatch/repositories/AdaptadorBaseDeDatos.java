@@ -197,4 +197,17 @@ public class AdaptadorBaseDeDatos {
 
         return captura;
     }
+
+    //Método para actualizar la Captura
+    public void actualizarCaptura(int idCaptura, String comentario, String fotoUri) {
+        SQLiteDatabase writableDatabase = instance.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("comentario", comentario);
+        if (fotoUri != null) {
+            values.put("foto", fotoUri);
+        }
+
+        // Actualizamos la captura por su id
+        writableDatabase.update("Captura", values, "id = ?", new String[]{String.valueOf(idCaptura)});
+    }
 }
