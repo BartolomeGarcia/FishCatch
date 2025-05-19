@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -14,17 +15,16 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
 import com.example.fishcatch.R;
 import com.example.fishcatch.model.Captura;
 import com.example.fishcatch.repositories.AdaptadorBaseDeDatos;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
 
 public class MainActivityDetalleCaptura extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -37,6 +37,7 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
     private TextView horaDetalle;
     private EditText comentariosDetalle;
     private TextView temperaturaDetalle;
+    private TextView temperaturaTitulo;
     private Button btnGuardar;
     private Uri nuevaImagenUri;  // URI de la imagen seleccionada o guardada
 
@@ -49,7 +50,7 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_detalle_captura);
 
-        // 1) Asociación de vistas
+        //Asociaciones
         imagenDetalle = findViewById(R.id.imagenDetalle);
         especieDetalle = findViewById(R.id.especieDetalle);
         pesoDetalle = findViewById(R.id.pesoDetalle);
@@ -58,6 +59,7 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
         horaDetalle = findViewById(R.id.horaDetalle);
         comentariosDetalle = findViewById(R.id.comentariosDetalle);
         temperaturaDetalle = findViewById(R.id.temperaturaDetalle);
+        temperaturaTitulo=findViewById(R.id.textViewTituloTemperatura);
         mapContainer = findViewById(R.id.mapContainer);
         btnGuardar = findViewById(R.id.btnGuardar);
 
@@ -82,6 +84,43 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
             selectImageLauncher.launch(intent);
         });
 
+        // Para mostrar el Mapa con OSMdroid
+        Configuration.getInstance().load(
+                getApplicationContext(),
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        );
+
+        FrameLayout mapContainer = findViewById(R.id.mapContainer);
+        Captura captura = adaptadorBaseDeDatos.obtenerCapturaPorId(capturaId);
+
+        if (captura != null && captura.tieneUbicacion()) {
+            mapContainer.setVisibility(View.VISIBLE);
+
+            MapView map = new MapView(this);
+            map.setTileSource(TileSourceFactory.MAPNIK);
+            map.setMultiTouchControls(true);
+            map.setLayoutParams(new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+            ));
+            mapContainer.addView(map);
+
+            GeoPoint punto = new GeoPoint(captura.getLatitud(), captura.getLongitud());
+            map.getController().setZoom(15.0);
+            map.getController().setCenter(punto);
+
+            Marker marker = new Marker(map);
+            marker.setPosition(punto);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            marker.setTitle("Lugar de captura");
+            map.getOverlays().add(marker);
+
+        } else {
+            // Ocultar el contenedor si no hay ubicación
+            mapContainer.setVisibility(View.GONE);
+        }
+
+
         //Botón guardar
         btnGuardar.setOnClickListener(v -> guardarCambios());
     }
@@ -90,15 +129,18 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
         Captura captura = adaptadorBaseDeDatos.obtenerCapturaPorId(id);
         if (captura == null) return;
 
-        //Imagen (try/catch para evitar crash)
+        // Imagen
         String fotoUri = captura.getFotoUri();
         if (fotoUri != null && !fotoUri.isEmpty()) {
+            imagenDetalle.setVisibility(View.VISIBLE);
             try {
                 imagenDetalle.setImageURI(Uri.parse(fotoUri));
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(this, "No se pudo cargar la imagen", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            imagenDetalle.setVisibility(View.GONE);
         }
 
         especieDetalle.setText(captura.getNombreEspecie());
@@ -107,8 +149,17 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
         fechaDetalle.setText(captura.getFecha());
         horaDetalle.setText(captura.getHora());
         comentariosDetalle.setText(captura.getComentario());
-        temperaturaDetalle.setText(String.valueOf(captura.getTemperatura()));
+
+        // Temperatura
+        if (captura.getTemperatura() == null) {
+            temperaturaTitulo.setVisibility(View.GONE);
+            temperaturaDetalle.setVisibility(View.GONE);
+        } else {
+            temperaturaDetalle.setVisibility(View.VISIBLE);
+            temperaturaDetalle.setText(String.valueOf(captura.getTemperatura()));
+        }
     }
+
 
     private void guardarCambios() {
         // Obtenemos el texto de comentarios
@@ -140,16 +191,15 @@ public class MainActivityDetalleCaptura extends AppCompatActivity {
                                 result.getData().getData() != null) {
 
                             Uri uriOriginal = result.getData().getData();
-                            // Persistir permiso sobre la URI
-                            int takeFlags = result.getData().getFlags()
-                                    & Intent.FLAG_GRANT_READ_URI_PERMISSION;
-                            getContentResolver().takePersistableUriPermission(
-                                    uriOriginal, takeFlags
-                            );
+                            int takeFlags = result.getData().getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                            getContentResolver().takePersistableUriPermission(uriOriginal, takeFlags);
 
-                            // Usar la misma URI (no es necesario copiar)
-                            imagenDetalle.setImageURI(uriOriginal);
+                            // Guardar URI para guardar en la base
                             nuevaImagenUri = uriOriginal;
+
+                            // Actualizar ImageView y hacerlo visible
+                            imagenDetalle.setVisibility(View.VISIBLE);
+                            imagenDetalle.setImageURI(uriOriginal);
                         }
                     }
             );
