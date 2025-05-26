@@ -1,10 +1,42 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Tema base con Material 3 y sin imagen de fondo -->
     <style name="Base.Theme.FishCatch" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:windowBackground">@drawable/fondoapp</item>
+        <!-- Fondo general de la app -->
+        <item name="android:windowBackground">@color/background_beige</item>
+
+        <!-- Colores principales -->
+        <item name="colorPrimary">@color/olive_green</item>
+        <item name="colorSecondary">@color/warm_brown</item>
+        <item name="colorOnPrimary">@color/button_text_light</item>
+
+        <!-- Color por defecto del texto -->
+        <item name="android:textColor">@color/text_dark</item>
+
+        <!-- Fuente general (opcional, simple y natural) -->
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <!-- Tema principal que usas en AndroidManifest -->
     <style name="Theme.FishCatch" parent="Base.Theme.FishCatch" />
+
+    <!-- Botón verde oliva -->
+    <style name="RusticButton.Olive" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/olive_green</item>
+        <item name="android:textColor">@color/button_text_light</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- Botón marrón cálido -->
+    <style name="RusticButton.Brown" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/warm_brown</item>
+        <item name="android:textColor">@color/button_text_light</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
 </resources>

@@ -1,72 +1,93 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
     android:padding="16dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <!-- Spinner para seleccionar año -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/labelSeleccionaAnio"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Selecciona año:"
             android:textSize="16sp"
-            android:layout_marginBottom="4dp" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <Spinner
             android:id="@+id/spinnerAnios"
             android:layout_width="193dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            app:layout_constraintTop_toBottomOf="@id/labelSeleccionaAnio"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
 
         <!-- Total capturas -->
         <TextView
             android:id="@+id/textViewTotalCapturas"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Total de capturas: "
             android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            app:layout_constraintTop_toBottomOf="@id/spinnerAnios"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
 
         <!-- Especie más capturada -->
         <TextView
             android:id="@+id/textViewEspecieMasCapturada"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Especie más capturada: "
             android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            app:layout_constraintTop_toBottomOf="@id/textViewTotalCapturas"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp" />
 
         <!-- Capturas por especie -->
         <TextView
             android:id="@+id/textViewCapturasPorEspecie"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Capturas por especie:"
             android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            app:layout_constraintTop_toBottomOf="@id/textViewEspecieMasCapturada"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp" />
 
         <!-- Día más exitoso -->
         <TextView
             android:id="@+id/textViewDiaMasExitoso"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Día más exitoso: "
             android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            app:layout_constraintTop_toBottomOf="@id/textViewCapturasPorEspecie"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp" />
 
         <!-- Captura con mayor peso con ubicación -->
         <TextView
             android:id="@+id/textViewMayorPesoConUbicacion"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Captura con mayor peso (con ubicación):"
             android:textSize="16sp"
-            android:layout_marginBottom="8dp" />
+            app:layout_constraintTop_toBottomOf="@id/textViewDiaMasExitoso"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp" />
 
         <!-- Botón para abrir ubicación en Google Maps -->
         <Button
@@ -75,24 +96,32 @@
             android:layout_height="wrap_content"
             android:text="Abrir ubicación en Google Maps"
             android:enabled="false"
-            android:layout_marginBottom="16dp" />
+            app:layout_constraintTop_toBottomOf="@id/textViewMayorPesoConUbicacion"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp" />
 
         <!-- Captura con mayor peso sin ubicación -->
         <TextView
             android:id="@+id/textViewMayorPesoSinUbicacion"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Captura con mayor peso (sin ubicación):"
             android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            app:layout_constraintTop_toBottomOf="@id/buttonAbrirMapaUbicacion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12dp" />
 
-        <!-- Añade justo antes del último TextView (captura sin ubicación) -->
-
+        <!-- Botón para generar PDF -->
         <Button
             android:id="@+id/buttonGenerarPdf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Generar PDF"
+            app:layout_constraintTop_toBottomOf="@id/textViewMayorPesoSinUbicacion"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp" />
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
